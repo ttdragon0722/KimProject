@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>掃描輸入資料</title>
+        <!-- Tailwind CDN -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- html5-qrcode CDN -->
+        <script src="https://unpkg.com/html5-qrcode"></script>
+        
+    </head>
+    <body class="bg-gray-100 min-h-screen flex items-center justify-center">
+        <a href="table.html"
+            class="fixed bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full shadow-lg transition">
+            📄 查看紀錄
+        </a>
+        <!-- Container 專為手機和平板設計 -->
+        <div
+            class="w-full px-4 sm:px-6 md:px-8 max-w-md md:max-w-lg mx-auto bg-white rounded-xl shadow-lg p-6">
+            <h1 class="text-2xl font-bold mb-4 text-center">📷 掃描輸入資料</h1>
+
+            <!-- 輸入框區塊 -->
+            <label class="block mb-2 text-gray-700 font-semibold">輸入資料</label>
+            <input id="scan-input" type="text"
+                class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
+                placeholder="請掃描或手動輸入" />
+
+            <!-- 開始掃描按鈕 -->
+            <button id="start-scan-btn"
+                class="mb-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                📷 啟動掃描
+            </button>
+
+            <!-- 相機掃描器（預設隱藏） -->
+            <div id="reader" class="hidden w-full max-w-sm mx-auto mb-4"></div>
+
+            <label for="name-input"
+                class="block mb-2 text-gray-700 font-semibold">填表人</label>
+            <input id="name-input" type="text"
+                class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
+                placeholder="請輸入填表人姓名" />
+
+            <!-- 數量欄位 -->
+            <label for="quantity-input"
+                class="block mb-2 text-gray-700 font-semibold">數量</label>
+            <input id="quantity-input" type="number" min="1"
+                class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
+                placeholder="請輸入數量" />
+
+            <script>
+                let html5QrcodeScanner;
+
+                // 點擊按鈕後顯示掃描器
+                document.getElementById("start-scan-btn").addEventListener("click", () => {
+                    const readerElement = document.getElementById("reader");
+                    readerElement.classList.remove("hidden"); // 顯示掃描器
+
+                    // 初始化掃描器
+                    html5QrcodeScanner = new Html5Qrcode("reader");
+                    html5QrcodeScanner.start(
+                    { facingMode: "environment" }, // 後鏡頭
+                    { fps: 10, qrbox: 250 },
+                    (decodedText, decodedResult) => {
+                        // 掃描成功時
+                        document.getElementById("scan-input").value = decodedText;
+                        html5QrcodeScanner.stop().then(() => {
+                        readerElement.classList.add("hidden"); // 關閉掃描器並隱藏
+                        });
+                    },
+                    (errorMessage) => {
+                        // 掃描錯誤（可略過）
+                    }
+                    );
+                });
+                </script>
+            <button id="save-btn"
+                class="w-full mb-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
+                💾 添加一筆資料
+            </button>
+
+            <script>
+                document.getElementById("save-btn").addEventListener("click", () => {
+                    const name = document.getElementById("name-input").value.trim();
+                    const quantity = document.getElementById("quantity-input").value.trim();
+                    const scanned = document.getElementById("scan-input").value.trim();
+
+                    if (!name || !quantity || !scanned) {
+                    alert("請完整填寫所有欄位");
+                    return;
+                    }
+
+                    // 組成一筆資料物件
+                    const newEntry = {
+                    填表人: name,
+                    數量: quantity,
+                    掃描資料: scanned
+                    };
+
+                    // 從 localStorage 中取出原本的資料（若無則設為空陣列）
+                    const oldData = JSON.parse(localStorage.getItem("formDataList")) || [];
+
+                    // 將新資料加入
+                    oldData.push(newEntry);
+
+                    // 寫回 localStorage
+                    localStorage.setItem("formDataList", JSON.stringify(oldData));
+
+                    alert("✅ 資料已儲存！");
+                    
+                    // 可選：清空欄位
+                    document.getElementById("name-input").value = "";
+                    document.getElementById("quantity-input").value = "";
+                    document.getElementById("scan-input").value = "";
+                });
+                </script>
+
+        </div>
+
+    </body>
+</html>
