@@ -1,0 +1,5 @@
+# 忽略 output 資料夾
+output/
+
+# 忽略 output.zip 檔案
+output.zip

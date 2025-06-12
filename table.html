@@ -1,85 +1,89 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>表單紀錄列表</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <!-- 引入 SheetJS -->
-        <script
-            src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-    </head>
-    <body class="bg-gray-100 min-h-screen p-6">
-        <button href="report.html" id="export-btn"
-            class="fixed bottom-16 right-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full shadow-lg transition">
-            📤 輸出報表
-        </button>
-        <a href="index.html"
-            class="fixed bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full shadow-lg transition">
-            📄 繼續添加
-        </a>
-        <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-xl p-6">
-            <h1 class="text-2xl font-bold mb-6 text-center">📋 表單紀錄清單</h1>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>表單紀錄列表</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 SheetJS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  </head>
+  <body class="bg-gray-100 min-h-screen p-6">
+    <button href="report.html" id="export-btn"
+      class="fixed bottom-16 right-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full shadow-lg transition">
+      📤 輸出報表
+    </button>
+    <a href="index.html"
+      class="fixed bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full shadow-lg transition">
+      📄 繼續添加
+    </a>
+    <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-xl p-6">
+      <h1 class="text-2xl font-bold mb-6 text-center">📋 表單紀錄清單</h1>
 
-            <div class="overflow-x-auto">
-                <table
-                    class="min-w-full border text-sm text-left text-gray-600">
-                    <thead class="bg-gray-200 text-gray-700 uppercase text-xs">
-                        <tr>
-                            <th class="px-4 py-3">填表人</th>
-                            <th class="px-4 py-3">數量</th>
-                            <th class="px-4 py-3">掃描資料</th>
-                            <th class="px-4 py-3 text-center">操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body"
-                        class="bg-white divide-y divide-gray-200">
-                        <!-- JS 動態插入 -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
+          <div class="w-full overflow-x-auto mb-6 rounded-lg border">
+      <table class="min-w-[800px] table-auto border-collapse w-full">
+        <thead class="bg-gray-100 text-gray-700 text-sm font-semibold">
+          <tr>
+            <th class="px-4 py-2 border">填表人</th>
+            <th class="px-4 py-2 border">品號</th>
+            <th class="px-4 py-2 border">產品名稱</th>
+            <th class="px-4 py-2 border">製作重量</th>
+            <th class="px-4 py-2 border">製作日期</th>
+            <th class="px-4 py-2 border">異常原因</th>
+            <th class="px-4 py-2 border text-center">操作</th>
+          </tr>
+        </thead>
+        <tbody id="table-body" class="text-sm text-gray-700">
+          <!-- JavaScript 插入資料 -->
+        </tbody>
+      </table>
+    </div>
+    </div>
 
-        <script>
-    const tableBody = document.getElementById("table-body");
+    <script>
+const tableBody = document.getElementById("table-body");
+let data = JSON.parse(localStorage.getItem("formDataList")) || [];
 
-    // 取得 localStorage 資料
-    let data = JSON.parse(localStorage.getItem("formDataList")) || [];
+function renderTable() {
+  tableBody.innerHTML = ""; // 清空表格內容
 
-    function renderTable() {
-      tableBody.innerHTML = ""; // 先清空
-      if (data.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-gray-500">沒有任何資料</td></tr>`;
-        return;
-      }
+  if (data.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-gray-500">沒有任何資料</td></tr>`;
+    return;
+  }
 
-      data.forEach((entry, index) => {
-        const row = document.createElement("tr");
-        row.classList.add("hover:bg-gray-100");
+  data.forEach((entry, index) => {
+    const row = document.createElement("tr");
+    row.classList.add("hover:bg-gray-100");
 
-        row.innerHTML = `
-          <td class="px-4 py-3">${entry.填表人}</td>
-          <td class="px-4 py-3">${entry.數量}</td>
-          <td class="px-4 py-3">${entry.掃描資料}</td>
-          <td class="px-4 py-3 text-center">
-            <button class="text-red-600 hover:underline" onclick="deleteEntry(${index})">刪除</button>
-          </td>
-        `;
-        tableBody.appendChild(row);
-      });
-    }
+    row.innerHTML = `
+      <td class="px-4 py-3">${entry.填表人 || ""}</td>
+      <td class="px-4 py-3">${entry.品號 || ""}</td>
+      <td class="px-4 py-3">${entry.產品名稱 || ""}</td>
+      <td class="px-4 py-3">${entry.製作重量 || ""}</td>
+      <td class="px-4 py-3">${entry.製作日期 || ""}</td>
+      <td class="px-4 py-3">${entry.異常原因 || "（無）"}</td>
+      <td class="px-4 py-3 text-center">
+        <button class="text-red-600 hover:underline" onclick="deleteEntry(${index})">刪除</button>
+      </td>
+    `;
+    tableBody.appendChild(row);
+  });
+}
 
-    function deleteEntry(index) {
-      if (confirm("確定要刪除這筆資料嗎？")) {
-        data.splice(index, 1);
-        localStorage.setItem("formDataList", JSON.stringify(data));
-        renderTable();
-      }
-    }
-
+function deleteEntry(index) {
+  if (confirm("確定要刪除這筆資料嗎？")) {
+    data.splice(index, 1);
+    localStorage.setItem("formDataList", JSON.stringify(data));
     renderTable();
-  </script>
-        <script>
+  }
+}
+
+// 初始渲染
+renderTable();
+</script>
+    <script>
     document.getElementById("export-btn").addEventListener("click", () => {
       // 從 localStorage 取資料
       const data = JSON.parse(localStorage.getItem("formDataList")) || [];
@@ -101,5 +105,5 @@
     });
   </script>
 
-    </body>
+  </body>
 </html>

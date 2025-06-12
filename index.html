@@ -8,7 +8,17 @@
         <script src="https://cdn.tailwindcss.com"></script>
         <!-- html5-qrcode CDN -->
         <script src="https://unpkg.com/html5-qrcode"></script>
-        
+
+        <meta name="description" content="提供快速掃描產品條碼並輸入資料的網頁，方便管理產品資訊。" />
+        <meta name="keywords" content="條碼掃描, 產品資料, HTML5 QR Code, 網頁表單, 資料輸入" />
+        <meta name="author" content="Rex Lai" />
+        <meta name="copyright" content="© 2025 Rex Lai" />
+
+        <meta property="og:title" content="掃描輸入資料" />
+        <meta property="og:description" content="透過條碼掃描快速輸入產品資料，提高工作效率。" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://ttdragon0722.github.io/haha/" />
+
     </head>
     <body class="bg-gray-100 min-h-screen flex items-center justify-center">
         <a href="table.html"
@@ -20,81 +30,181 @@
             class="w-full px-4 sm:px-6 md:px-8 max-w-md md:max-w-lg mx-auto bg-white rounded-xl shadow-lg p-6">
             <h1 class="text-2xl font-bold mb-4 text-center">📷 掃描輸入資料</h1>
 
-            <!-- 輸入框區塊 -->
-            <label class="block mb-2 text-gray-700 font-semibold">輸入資料</label>
-            <input id="scan-input" type="text"
-                class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
-                placeholder="請掃描或手動輸入" />
-
             <!-- 開始掃描按鈕 -->
             <button id="start-scan-btn"
                 class="mb-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
                 📷 啟動掃描
             </button>
-
             <!-- 相機掃描器（預設隱藏） -->
             <div id="reader" class="hidden w-full max-w-sm mx-auto mb-4"></div>
+            <!-- 輸入框區塊 -->
+            <label class="block mb-2 text-gray-700 font-semibold">產品資料</label>
+            <input id="product-id" type="text"
+                class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
+                placeholder="品號" />
+            <input id="product-name" type="text"
+                class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
+                placeholder="產品名稱" />
 
-            <label for="name-input"
+
+            <label for="name-select"
                 class="block mb-2 text-gray-700 font-semibold">填表人</label>
-            <input id="name-input" type="text"
-                class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
-                placeholder="請輸入填表人姓名" />
+            <select id="name-select"
+                class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4 bg-white text-gray-500"
+                onchange="handleSelectChange(this)">
+                <option value disabled selected>請選擇填表人</option>
+                <option value="張三">張三</option>
+                <option value="李四">李四</option>
+                <option value="王五">王五</option>
+            </select>
 
-            <!-- 數量欄位 -->
-            <label for="quantity-input"
-                class="block mb-2 text-gray-700 font-semibold">數量</label>
-            <input id="quantity-input" type="number" min="1"
-                class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
-                placeholder="請輸入數量" />
+            <!-- 填表人優化 -->
+            <script>
+            const select = document.getElementById('name-select');
+            const storageKey = 'lastSelectedName';
+
+            // 載入時從 localStorage 讀取
+            window.addEventListener('DOMContentLoaded', () => {
+                const saved = localStorage.getItem(storageKey);
+                if (saved) {
+                select.value = saved;
+                select.classList.toggle('text-gray-700', saved !== '');
+                }
+            });
+
+            // 選擇改變時，存回 localStorage 並改變文字顏色
+            function handleSelectChange(elem) {
+                const val = elem.value;
+                localStorage.setItem(storageKey, val);
+                elem.classList.toggle('text-gray-700', val !== '');
+            }
+            </script>
+
+            <!-- 重量欄位 -->
+            <label for="weight-input"
+                class="block mb-2 text-gray-700 font-semibold">製作重量</label>
+            <div class="flex space-x-2 mb-4">
+                <input id="weight-input" type="number" min="1"
+                    class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder="請輸入重量(數字)" />
+
+                <select id="unit-select"
+                    class="px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <option value="公斤">公斤</option>
+                    <option value="台斤">台斤</option>
+                </select>
+            </div>
+
+            <label for="make-date"
+                class="block mb-2 text-gray-700 font-semibold">製作日期</label>
+            <input id="make-date" type="date"
+                class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4 bg-white" />
+            
+            <!-- 時間打包 -->
+            <script>
+                window.addEventListener("DOMContentLoaded", () => {
+                    const dateInput = document.getElementById("make-date");
+                    const today = new Date();
+                    today.setDate(today.getDate() + 1); // 加一天
+
+                    const yyyy = today.getFullYear();
+                    const mm = String(today.getMonth() + 1).padStart(2, '0');
+                    const dd = String(today.getDate()).padStart(2, '0');
+
+                    dateInput.value = `${yyyy}-${mm}-${dd}`;
+                });
+            </script>
+
+            <label for="abnormal-reason"
+                class="block mb-2 text-gray-700 font-semibold">
+                產品異常原因（選填）
+            </label>
+            <textarea id="abnormal-reason" rows="5" placeholder="請輸入產品異常原因（選填）"
+                class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none">
+            </textarea>
 
             <script>
                 let html5QrcodeScanner;
+                let scanning = false; // 狀態旗標
 
-                // 點擊按鈕後顯示掃描器
                 document.getElementById("start-scan-btn").addEventListener("click", () => {
+                    const btn = document.getElementById("start-scan-btn");
                     const readerElement = document.getElementById("reader");
-                    readerElement.classList.remove("hidden"); // 顯示掃描器
 
-                    // 初始化掃描器
-                    html5QrcodeScanner = new Html5Qrcode("reader");
-                    html5QrcodeScanner.start(
-                    { facingMode: "environment" }, // 後鏡頭
-                    { fps: 10, qrbox: 250 },
-                    (decodedText, decodedResult) => {
-                        // 掃描成功時
-                        document.getElementById("scan-input").value = decodedText;
+                    if (!scanning) {
+                        // 開始掃描
+                        html5QrcodeScanner = new Html5Qrcode("reader");
+                        readerElement.classList.remove("hidden");
+                        btn.textContent = "❌關閉掃描";
+                        scanning = true;
+
+                        html5QrcodeScanner.start(
+                            { facingMode: "environment" },
+                            { fps: 10, qrbox: 250 },
+                            (decodedText, decodedResult) => {
+                                const parts = decodedText.split("@");
+                                if (parts.length >= 2) {
+                                    document.getElementById("product-id").value = parts[0];
+                                    document.getElementById("product-name").value = parts[1];
+                                } else {
+                                    alert("QR Code 格式錯誤，應包含 @ 分隔的兩段資訊");
+                                }
+
+                                // 掃描完成後自動停止並關閉掃描器
+                                html5QrcodeScanner.stop().then(() => {
+                                    readerElement.classList.add("hidden");
+                                    btn.textContent = "啟動掃描";
+                                    scanning = false;
+                                });
+                            },
+                            (errorMessage) => {
+                                // 掃描錯誤略過
+                            }
+                        );
+                    } else {
+                        // 停止掃描
                         html5QrcodeScanner.stop().then(() => {
-                        readerElement.classList.add("hidden"); // 關閉掃描器並隱藏
+                            readerElement.classList.add("hidden");
+                            btn.textContent = "📷 啟動掃描";
+                            scanning = false;
+                        }).catch((err) => {
+                            console.error("停止掃描失敗", err);
                         });
-                    },
-                    (errorMessage) => {
-                        // 掃描錯誤（可略過）
                     }
-                    );
                 });
                 </script>
+            
+            
             <button id="save-btn"
                 class="w-full mb-4 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
                 💾 添加一筆資料
             </button>
 
+            <!-- 打包 -->
             <script>
                 document.getElementById("save-btn").addEventListener("click", () => {
-                    const name = document.getElementById("name-input").value.trim();
-                    const quantity = document.getElementById("quantity-input").value.trim();
-                    const scanned = document.getElementById("scan-input").value.trim();
+                    const productId = document.getElementById("product-id").value.trim();
+                    const productName = document.getElementById("product-name").value.trim();
+                    const name = document.getElementById("name-select").value.trim();
+                    const weight = document.getElementById("weight-input").value.trim();
+                    const unit = document.getElementById("unit-select").value.trim();
+                    const makeDate = document.getElementById("make-date").value.trim();
+                    const abnormalReason = document.getElementById("abnormal-reason").value.trim();
 
-                    if (!name || !quantity || !scanned) {
-                    alert("請完整填寫所有欄位");
-                    return;
+                    // 檢查必填欄位
+                    if (!productId || !productName || !name || !weight || !unit || !makeDate) {
+                        alert("請完整填寫所有必填欄位");
+                        return;
                     }
 
                     // 組成一筆資料物件
                     const newEntry = {
-                    填表人: name,
-                    數量: quantity,
-                    掃描資料: scanned
+                        品號: productId,
+                        產品名稱: productName,
+                        填表人: name,
+                        製作重量: `${weight} ${unit}`,
+                        製作日期: makeDate,
+                        異常原因: abnormalReason || "（無）"
                     };
 
                     // 從 localStorage 中取出原本的資料（若無則設為空陣列）
@@ -107,11 +217,16 @@
                     localStorage.setItem("formDataList", JSON.stringify(oldData));
 
                     alert("✅ 資料已儲存！");
-                    
-                    // 可選：清空欄位
-                    document.getElementById("name-input").value = "";
-                    document.getElementById("quantity-input").value = "";
-                    document.getElementById("scan-input").value = "";
+
+                    // 清空欄位（視需要保留部分欄位）
+                    document.getElementById("product-id").value = "";
+                    document.getElementById("product-name").value = "";
+                    // select 下拉選單重設
+                    document.getElementById("name-select").selectedIndex = 0;
+                    document.getElementById("weight-input").value = "";
+                    document.getElementById("unit-select").selectedIndex = 0;
+                    document.getElementById("make-date").value = "";
+                    document.getElementById("abnormal-reason").value = "";
                 });
                 </script>
 
